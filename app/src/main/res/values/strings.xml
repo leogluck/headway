@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Headway</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="notification_title">Audio Player</string>
+    <string name="notification_description">Playing your favorite books</string>
+    <string name="audio_player_channel_name">Audio player</string>
+    <string name="audio_player_channel_description">Notifications for audio playback controls and track information</string>
+    <string name="key_point_of_total">KEY POINT %d OF %d</string>
+    <string name="playback_speed">Speed x%d</string>
+    <string name="design_quote">Design is not how a thing looks, but how it works</string>
+    <string name="skip_next">Skip Next</string>
+    <string name="skip_previous">Skip Previous</string>
+</resources>
