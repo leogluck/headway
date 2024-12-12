@@ -45,7 +45,7 @@ class BookPlayerActivity : ComponentActivity() {
         handleUserPermissions()
         observeEffects()
 
-        viewModel.onEvent(SetData)
+        viewModel.onEvent(SetData(intent.getStringExtra(EXTRA_BOOK_ID) ?: DEFAULT_BOOK_ID))
 
         enableEdgeToEdge()
         setContent {
@@ -134,5 +134,7 @@ class BookPlayerActivity : ComponentActivity() {
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 123
+        private const val EXTRA_BOOK_ID = "EXTRA_BOOK_ID"
+        private const val DEFAULT_BOOK_ID = "some_book_id"
     }
 }

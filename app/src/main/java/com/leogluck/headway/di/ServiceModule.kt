@@ -1,10 +1,12 @@
-package com.leogluck.headway
+package com.leogluck.headway.di
 
 import android.content.Context
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import com.leogluck.headway.FIVE_SECONDS
+import com.leogluck.headway.TEN_SECONDS
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

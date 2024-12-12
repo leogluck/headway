@@ -1,4 +1,4 @@
-package com.leogluck.headway
+package com.leogluck.headway.di
 
 import android.app.NotificationManager
 import android.content.Context

@@ -15,7 +15,7 @@ data class ScreenState(
 )
 
 sealed interface Event {
-    data object SetData : Event
+    data class SetData(val bookId: String) : Event
     data object OnBindAudioPlayer : Event
     data object PlayPauseClicked : Event
     data object SeekForwardClicked : Event
