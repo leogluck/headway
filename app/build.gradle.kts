@@ -53,6 +53,7 @@ android {
 
 dependencies {
     kapt(libs.hilt.android.compiler)
+    kapt(libs.androidx.hilt.compiler)
     implementation(libs.hilt.android)
     implementation(libs.androidx.media)
     implementation(libs.androidx.media3.session)

@@ -13,9 +13,12 @@ import com.leogluck.headway.bookplayer.Event.SeekForwardClicked
 import com.leogluck.headway.bookplayer.Event.SetData
 import com.leogluck.headway.bookplayer.Event.SkipNextClicked
 import com.leogluck.headway.bookplayer.Event.SkipPreviousClicked
+import com.leogluck.headway.di.IoDispatcher
 import com.leogluck.headway.millisToPosition
 import com.leogluck.headway.positionToMillis
+import com.leogluck.headway.repository.IAudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -24,11 +27,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class BookPlayerViewModel @Inject constructor(
-//    private val audioRepository: AudioRepository
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val audioRepository: IAudioRepository
 ) : ViewModel() {
 
     private val booksAudio = mutableListOf<Uri>()
@@ -50,7 +55,7 @@ class BookPlayerViewModel @Inject constructor(
 
     fun onEvent(event: Event) {
         when (event) {
-            SetData -> loadAudio()
+            is SetData -> loadAudio(event.bookId)
             OnBindAudioPlayer -> prepareAudioPlayer()
             PlayPauseClicked -> handlePlayPauseEvent()
             SeekForwardClicked -> seekForward()
@@ -62,13 +67,16 @@ class BookPlayerViewModel @Inject constructor(
         }
     }
 
-    private fun loadAudio() {
-        booksAudio.add(Uri.parse("android.resource://com.leogluck.headway/raw/no_conventions"))
-        booksAudio.add(Uri.parse("android.resource://com.leogluck.headway/raw/maybe"))
-        booksAudio.add(Uri.parse("android.resource://com.leogluck.headway/raw/no_conventions"))
-        booksAudio.add(Uri.parse("android.resource://com.leogluck.headway/raw/maybe"))
+    private fun loadAudio(bookId: String) {
+        viewModelScope.launch {
+            runCatching {
+                withContext(ioDispatcher) {audioRepository.getAudioLinksPlaylist(bookId)}
+            }.onSuccess {
+                booksAudio.addAll(it.map { Uri.parse(it) })
+            }.onFailure {
 
-
+            }
+        }
     }
 
     private fun prepareAudioPlayer() {
