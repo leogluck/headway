@@ -12,7 +12,7 @@ data class ScreenState(
     val currentTrackNumber: Int = 0,
     val totalTracks: Int = 0,
     val playbackSpeed: Int = 1,
-    val bitmapResourceId: Int = R.drawable.book_cover,
+    val bitmapResourceId: Int? = null,
     val errorMessage: String? = null
 )
 

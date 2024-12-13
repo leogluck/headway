@@ -71,14 +71,16 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
         ) {
             val imageBitmap = getBitmap(screenState.bitmapResourceId)
 
-            Image(
-                bitmap = imageBitmap.asImageBitmap(),
-                contentDescription = "Book Cover",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1F)
-                    .padding(top = 64.dp)
-            )
+            imageBitmap?.let { imgBitmap ->
+                Image(
+                    bitmap = imgBitmap.asImageBitmap(),
+                    contentDescription = "Book Cover",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1F)
+                        .padding(top = 64.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
