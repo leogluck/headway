@@ -1,6 +1,7 @@
 package com.leogluck.headway.bookplayer
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,7 +61,7 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.clickable { onEvent(Event.DismissError) }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -148,12 +149,13 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
 
         val errorMessage = screenState.errorMessage
         if (errorMessage != null) {
+            val actionLabel = getString(R.string.dismiss)
             LaunchedEffect(errorMessage) {
                 snackbarHostState.showSnackbar(
                     message = errorMessage,
-                    duration = SnackbarDuration.Indefinite // Or a specific duration
+                    actionLabel = actionLabel,
+                    duration = SnackbarDuration.Indefinite
                 )
-                onEvent(Event.DismissError)
             }
         }
     }

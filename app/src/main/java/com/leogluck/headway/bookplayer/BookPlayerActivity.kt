@@ -93,6 +93,8 @@ class BookPlayerActivity : ComponentActivity() {
                     viewModel.onEvent(Event.PlaybackStateChanged(state))
                 }
             }
+        }
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 audioPlayerService.errors.collect { error ->
                     viewModel.onEvent(Event.PlaybackError(error))
