@@ -14,8 +14,8 @@ fun getString(@StringRes stringResId: Int) = getContext().getString(stringResId)
 
 @Composable
 @ReadOnlyComposable
-fun getBitmap(@DrawableRes drawableResId: Int): Bitmap =
-    BitmapFactory.decodeResource(getContext().resources, drawableResId)
+fun getBitmap(@DrawableRes drawableResId: Int?): Bitmap? =
+    drawableResId?.let { BitmapFactory.decodeResource(getContext().resources, it) }
 
 @Composable
 fun formatSecondsToMMSS(seconds: Float): String {

@@ -21,6 +21,9 @@ import com.leogluck.headway.positionToMillis
 import com.leogluck.headway.repository.IAudioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,7 +40,8 @@ class BookPlayerViewModel @Inject constructor(
     private val audioRepository: IAudioRepository
 ) : ViewModel() {
 
-    private val booksAudio = mutableListOf<Uri>()
+    private var bookInfoFetchingJob: Job? = null
+    private var bookInfoDeferred: Deferred<List<Uri>>? = null
 
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
@@ -62,23 +66,30 @@ class BookPlayerViewModel @Inject constructor(
     }
 
     private fun loadAudio(bookId: String) {
-        viewModelScope.launch {
-            runCatching {
-                withContext(ioDispatcher) {audioRepository.getAudioLinksPlaylist(bookId)}
-            }.onSuccess {
-                booksAudio.addAll(it.map { Uri.parse(it) })
-            }.onFailure {
-
+        bookInfoFetchingJob = viewModelScope.launch {
+            bookInfoDeferred = async {
+                runCatching {
+                    withContext(ioDispatcher) { audioRepository.getAudioLinksPlaylist(bookId) }
+                }.onSuccess { bookInfo ->
+                    _screenState.update {
+                        it.copy(
+                            bitmapResourceId = bookInfo.bitmapResourceId
+                        )
+                    }
+                }.onFailure {
+                    handleErrors(it.message)
+                }.map { bookInfo ->
+                    bookInfo.playlist.map { Uri.parse(it) }
+                }.getOrElse { emptyList() }
             }
         }
     }
 
     private fun prepareAudioPlayer() {
-        if (booksAudio.isNotEmpty()) {
-            viewModelScope.launch {
-                _effects.emit(Effect.Prepare(booksAudio))
+        viewModelScope.launch {
+            bookInfoDeferred?.await()?.let {
+                _effects.emit(Effect.Prepare(it))
             }
-            booksAudio.clear()
         }
     }
 
@@ -159,5 +170,10 @@ class BookPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             _effects.emit(Effect.Seek(position))
         }
+    }
+
+    override fun onCleared() {
+        bookInfoFetchingJob?.cancel()
+        super.onCleared()
     }
 }
