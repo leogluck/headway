@@ -83,7 +83,7 @@ class BookPlayerActivity : ComponentActivity() {
         val binder = service as AudioPlayerService.AudioBinder
         audioPlayerService = binder.getService().also { subscribeAudioCallbacks(it) }
         isBound = true
-        viewModel.onEvent(Event.OnBindAudioPlayer)
+        viewModel.onEvent(Event.BindAudioPlayer)
     }
 
     private fun subscribeAudioCallbacks(audioPlayerService: AudioPlayerService) {
@@ -91,6 +91,13 @@ class BookPlayerActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 audioPlayerService.playbackState.collect { state ->
                     viewModel.onEvent(Event.PlaybackStateChanged(state))
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                audioPlayerService.errors.collect { error ->
+                    viewModel.onEvent(Event.PlaybackError(error))
                 }
             }
         }

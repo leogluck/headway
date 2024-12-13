@@ -2,29 +2,32 @@ package com.leogluck.headway.bookplayer
 
 import android.net.Uri
 import com.leogluck.headway.R
+import com.leogluck.headway.audioplayer.AudioPlayerError
 import com.leogluck.headway.audioplayer.PlaybackState
 
 data class ScreenState(
     val isPlaying: Boolean = false,
     val currentPosition: Float = 0F,
     val totalDuration: Float = 0F,
-    val currentTrackNumber: Int,
-    val totalTracks: Int,
-    val playbackSpeed: Int,
-    val bitmapResourceId: Int = R.drawable.book_cover
+    val currentTrackNumber: Int = 0,
+    val totalTracks: Int = 0,
+    val playbackSpeed: Int = 1,
+    val bitmapResourceId: Int = R.drawable.book_cover,
+    val errorMessage: String? = null
 )
 
 sealed interface Event {
     data class SetData(val bookId: String) : Event
-    data object OnBindAudioPlayer : Event
+    data object BindAudioPlayer : Event
     data object PlayPauseClicked : Event
     data object SeekForwardClicked : Event
     data object SeekBackwardClicked : Event
     data object SkipNextClicked : Event
     data object SkipPreviousClicked : Event
-
     data class Seek(val position: Float) : Event
     data class PlaybackStateChanged(val playbackState: PlaybackState) : Event
+    class PlaybackError(val error: AudioPlayerError) : Event
+    data object DismissError : Event
 }
 
 sealed interface Effect {

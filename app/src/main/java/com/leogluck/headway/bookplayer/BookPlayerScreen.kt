@@ -1,6 +1,7 @@
 package com.leogluck.headway.bookplayer
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,10 +27,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,15 +51,17 @@ import com.leogluck.headway.getString
 @Composable
 fun BookPlayerScreen(viewModel: BookPlayerViewModel) {
 
-    val screenState by viewModel.uiState.collectAsState()
+    val screenState by viewModel.screenState.collectAsState()
 
     Content(screenState) { event: Event -> viewModel.onEvent(event) }
 }
 
 @Composable
 private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
-//        snackbarHost = { SnackbarHost() }
+        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.clickable { onEvent(Event.DismissError) }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -137,6 +145,18 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
             }
 
             ControlPanel(screenState, onEvent)
+        }
+
+        val errorMessage = screenState.errorMessage
+        if (errorMessage != null) {
+            val actionLabel = getString(R.string.dismiss)
+            LaunchedEffect(errorMessage) {
+                snackbarHostState.showSnackbar(
+                    message = errorMessage,
+                    actionLabel = actionLabel,
+                    duration = SnackbarDuration.Indefinite
+                )
+            }
         }
     }
 }
