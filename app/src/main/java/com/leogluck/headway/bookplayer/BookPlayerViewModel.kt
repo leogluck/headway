@@ -4,8 +4,10 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leogluck.headway.audioplayer.PlaybackState
-import com.leogluck.headway.bookplayer.Event.OnBindAudioPlayer
+import com.leogluck.headway.bookplayer.Event.BindAudioPlayer
+import com.leogluck.headway.bookplayer.Event.DismissError
 import com.leogluck.headway.bookplayer.Event.PlayPauseClicked
+import com.leogluck.headway.bookplayer.Event.PlaybackError
 import com.leogluck.headway.bookplayer.Event.PlaybackStateChanged
 import com.leogluck.headway.bookplayer.Event.Seek
 import com.leogluck.headway.bookplayer.Event.SeekBackwardClicked
@@ -22,7 +24,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -38,17 +39,8 @@ class BookPlayerViewModel @Inject constructor(
 
     private val booksAudio = mutableListOf<Uri>()
 
-    private val _uiState = MutableStateFlow(
-        ScreenState(
-            isPlaying = false,
-            currentPosition = 40.5f,
-            totalDuration = 350.7f,
-            currentTrackNumber = 2,
-            totalTracks = 10,
-            playbackSpeed = 1
-        )
-    )
-    val uiState: StateFlow<ScreenState> = _uiState.asStateFlow()
+    private val _screenState = MutableStateFlow(ScreenState())
+    val screenState = _screenState.asStateFlow()
 
     private val _effects = MutableSharedFlow<Effect>()
     val effects: SharedFlow<Effect> = _effects.asSharedFlow()
@@ -56,7 +48,7 @@ class BookPlayerViewModel @Inject constructor(
     fun onEvent(event: Event) {
         when (event) {
             is SetData -> loadAudio(event.bookId)
-            OnBindAudioPlayer -> prepareAudioPlayer()
+            BindAudioPlayer -> prepareAudioPlayer()
             PlayPauseClicked -> handlePlayPauseEvent()
             SeekForwardClicked -> seekForward()
             SeekBackwardClicked -> seekBackward()
@@ -64,6 +56,8 @@ class BookPlayerViewModel @Inject constructor(
             is PlaybackStateChanged -> handlePlaybackStateChanged(event.playbackState)
             SkipNextClicked -> skipNext()
             SkipPreviousClicked -> skipPrevious()
+            is PlaybackError -> handleErrors(event.error.exception.message)
+            DismissError -> dismissError()
         }
     }
 
@@ -113,14 +107,14 @@ class BookPlayerViewModel @Inject constructor(
     }
 
     private fun seekMedia(position: Float) {
-        _uiState.update {
+        _screenState.update {
             it.copy(currentPosition = position)
         }
         seekMedia(position.positionToMillis())
     }
 
     private fun handlePlaybackStateChanged(playbackState: PlaybackState) {
-        _uiState.update {
+        _screenState.update {
             it.copy(
                 isPlaying = playbackState.isPlaying,
                 currentPosition = playbackState.currentPosition.millisToPosition(),
@@ -131,8 +125,16 @@ class BookPlayerViewModel @Inject constructor(
         }
     }
 
+    private fun handleErrors(errorMessage: String?) {
+        _screenState.update { it.copy(errorMessage = errorMessage) }
+    }
+
+    private fun dismissError() {
+        _screenState.update { it.copy(errorMessage = null) }
+    }
+
     private fun handlePlayPauseEvent() {
-        if (_uiState.value.isPlaying) {
+        if (_screenState.value.isPlaying) {
             pauseMedia()
         } else {
             playMedia()

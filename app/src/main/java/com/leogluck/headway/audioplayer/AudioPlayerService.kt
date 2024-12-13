@@ -13,13 +13,17 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.leogluck.headway.Launcher
 import com.leogluck.headway.NOTIFICATION_ID
 import com.leogluck.headway.ONE_SECOND_DELAY
+import com.leogluck.headway.notification.createNotification
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -43,7 +47,11 @@ class AudioPlayerService : Service(), IAudioPlayer {
     private var progressUpdateJob: Job? = null
 
     private val _playbackState = MutableStateFlow(PlaybackState())
-    val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+    val playbackState = _playbackState.asStateFlow()
+
+    private val _errors = MutableSharedFlow<AudioPlayerError>()
+    val errors = _errors.asSharedFlow()
+
 
     private val binder = AudioBinder()
 
@@ -86,7 +94,9 @@ class AudioPlayerService : Service(), IAudioPlayer {
         }
 
         override fun onPlayerError(error: PlaybackException) {
-
+            scope.launch {
+                _errors.emit(AudioPlayerError.PlaybackError(error))
+            }
         }
     }
 
@@ -128,8 +138,9 @@ class AudioPlayerService : Service(), IAudioPlayer {
                 exoPlayer.prepare()
             }
         }.onFailure {
-            it.printStackTrace()
-//            TODO("event to VM")
+            scope.launch {
+                _errors.emit(AudioPlayerError.PreparationError(it))
+            }
         }
     }
 
@@ -174,8 +185,6 @@ class AudioPlayerService : Service(), IAudioPlayer {
 
     inner class AudioBinder : Binder() {
         fun getService(): AudioPlayerService = this@AudioPlayerService
-
-        fun getPlaybackState(): StateFlow<PlaybackState> = _playbackState.asStateFlow()
     }
 
     companion object {

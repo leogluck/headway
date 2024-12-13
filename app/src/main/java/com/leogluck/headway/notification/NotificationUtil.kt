@@ -1,12 +1,14 @@
-package com.leogluck.headway.audioplayer
+package com.leogluck.headway.notification
 
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.media.app.NotificationCompat.*
 import com.leogluck.headway.CHANNEL_ID
 import com.leogluck.headway.R
+import com.leogluck.headway.audioplayer.AudioPlayerService
 import com.leogluck.headway.audioplayer.AudioPlayerService.Companion.ACTION_PAUSE
 import com.leogluck.headway.audioplayer.AudioPlayerService.Companion.ACTION_PLAY
 import com.leogluck.headway.audioplayer.AudioPlayerService.Companion.ACTION_SKIP_TO_NEXT
@@ -21,13 +23,17 @@ fun Context.createNotification(isPlaying: Boolean): Notification {
         getPlayAction(this)
     }
 
-    return NotificationCompat.Builder(this, CHANNEL_ID).setSmallIcon(R.drawable.ic_music_note)
+    return NotificationCompat.Builder(this, CHANNEL_ID)
+        .setSmallIcon(R.drawable.ic_music_note)
         .setContentTitle(getString(R.string.notification_description))
         .setContentText(getString(R.string.notification_description))
-        .setContentIntent(getPendingIntent(this)).addAction(getSkipPreviousAction(this))
-        .addAction(playPauseAction).addAction(getSkipNextAction(this))
-        .setStyle(androidx.media.app.NotificationCompat.MediaStyle())
-        .setDeleteIntent(getDeleteIntent(this)).setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+        .setContentIntent(getPendingIntent(this))
+        .addAction(getSkipPreviousAction(this))
+        .addAction(playPauseAction).
+        addAction(getSkipNextAction(this))
+        .setStyle(MediaStyle())
+        .setDeleteIntent(getDeleteIntent(this))
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .build()
 }
 
