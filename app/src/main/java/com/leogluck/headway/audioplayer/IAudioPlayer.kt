@@ -11,4 +11,5 @@ interface IAudioPlayer {
     fun seekToPosition(position: Long)
     fun seekForward()
     fun seekBackward()
+    fun setPlaybackSpeed(speed: Float)
 }

@@ -21,9 +21,11 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -44,6 +46,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.leogluck.headway.R
+import com.leogluck.headway.SPEED_DOUBLE
+import com.leogluck.headway.SPEED_HALF
+import com.leogluck.headway.SPEED_NORMAL
+import com.leogluck.headway.SPEED_ONE_AND_A_HALF
 import com.leogluck.headway.formatSecondsToMMSS
 import com.leogluck.headway.getBitmap
 import com.leogluck.headway.getString
@@ -56,13 +62,19 @@ fun BookPlayerScreen(viewModel: BookPlayerViewModel) {
     Content(screenState) { event: Event -> viewModel.onEvent(event) }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.clickable { onEvent(Event.DismissError) }) }
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                modifier = Modifier.clickable { onEvent(Event.DismissError) })
+        },
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,7 +147,7 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { },
+                onClick = { onEvent(Event.PlaybackSpeedClicked) },
                 colors = ButtonDefaults.buttonColors(Color(0xFFE9E9E9)),
                 modifier = Modifier.padding(16.dp)
             ) {
@@ -160,12 +172,58 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
                 )
             }
         }
+
+        if (screenState.isBottomSheetVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { onEvent(Event.DismissBottomSheet) }
+            ) {
+                BottomSheetContent(onPlaybackSpeedSelected = { speed ->
+                    onEvent(Event.PlaybackSpeedSelected(speed))
+                })
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomSheetContent(
+    onPlaybackSpeedSelected: (Float) -> Unit
+) {
+    val playbackSpeeds = listOf(
+        SPEED_HALF,
+        SPEED_NORMAL,
+        SPEED_ONE_AND_A_HALF,
+        SPEED_DOUBLE
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = getString(R.string.playback_speed_title),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        playbackSpeeds.forEach { speed ->
+            Button(
+                onClick = { onPlaybackSpeedSelected(speed) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = String.format(getString(R.string.playback_speed_formatter), speed))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
 
 @Composable
 private fun ControlPanel(
-    screenState: ScreenState, onEvent: (Event) -> Unit
+    screenState: ScreenState,
+    onEvent: (Event) -> Unit
 ) {
     Row(
         modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
@@ -224,6 +282,6 @@ fun AudioPlayerPreview() {
         totalDuration = 350.7f,
         currentTrackNumber = 2,
         totalTracks = 10,
-        playbackSpeed = 1
+        playbackSpeed = 1F
     ), onEvent = {})
 }

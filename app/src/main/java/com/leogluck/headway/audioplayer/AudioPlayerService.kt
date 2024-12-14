@@ -21,8 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -160,6 +158,8 @@ class AudioPlayerService : Service(), IAudioPlayer {
         exoPlayer.seekTo(position)
         _playbackState.update { it.copy(currentPosition = position) }
     }
+
+    override fun setPlaybackSpeed(speed: Float) = exoPlayer.setPlaybackSpeed(speed)
 
     private fun updateForegroundNotification() = notificationManager.notify(
         NOTIFICATION_ID, createNotification(_playbackState.value.isPlaying)
