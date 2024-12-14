@@ -149,7 +149,9 @@ class BookPlayerViewModel @Inject constructor(
         _screenState.update {
             it.copy(currentPosition = position)
         }
-        seekMedia(position.positionToMillis())
+        viewModelScope.launch {
+            _effects.emit(Effect.Seek(position.positionToMillis()))
+        }
     }
 
     private fun handlePlaybackStateChanged(playbackState: PlaybackState) {
@@ -191,12 +193,6 @@ class BookPlayerViewModel @Inject constructor(
     private fun pauseMedia() {
         viewModelScope.launch {
             _effects.emit(Effect.Pause)
-        }
-    }
-
-    private fun seekMedia(position: Long) {
-        viewModelScope.launch {
-            _effects.emit(Effect.Seek(position))
         }
     }
 
