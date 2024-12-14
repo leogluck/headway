@@ -6,6 +6,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.leogluck.headway.FIVE_SECONDS
+import com.leogluck.headway.MEDIA_SESSION_TAG
 import com.leogluck.headway.TEN_SECONDS
 import dagger.Module
 import dagger.Provides
@@ -29,5 +30,5 @@ object ServiceModule {
     @Provides
     @ServiceScoped
     fun provideMediaSession(@ApplicationContext context: Context) =
-        MediaSessionCompat(context, "HeadwayAudioPlayer")
+        MediaSessionCompat(context, MEDIA_SESSION_TAG)
 }

@@ -75,7 +75,7 @@ class BookPlayerViewModel @Inject constructor(
         bookInfoFetchingJob = viewModelScope.launch {
             bookInfoDeferred = async {
                 runCatching {
-                    withContext(ioDispatcher) { audioRepository.getAudioLinksPlaylist(bookId) }
+                    withContext(ioDispatcher) { audioRepository.getBookInfo(bookId) }
                 }.onSuccess { bookInfo ->
                     _screenState.update {
                         it.copy(
