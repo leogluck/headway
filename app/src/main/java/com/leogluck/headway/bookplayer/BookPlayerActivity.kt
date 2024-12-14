@@ -76,6 +76,7 @@ class BookPlayerActivity : ComponentActivity() {
             Effect.SkipNext -> audioPlayerService?.skipToNext()
             Effect.SkipPrevious -> audioPlayerService?.skipToPrevious()
             is Effect.Seek -> audioPlayerService?.seekToPosition(effect.position)
+            is Effect.SetPlaybackSpeed -> audioPlayerService?.setPlaybackSpeed(effect.speed)
         }
     }
 

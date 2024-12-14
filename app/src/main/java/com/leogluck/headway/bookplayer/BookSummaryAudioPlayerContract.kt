@@ -1,7 +1,6 @@
 package com.leogluck.headway.bookplayer
 
 import android.net.Uri
-import com.leogluck.headway.R
 import com.leogluck.headway.audioplayer.AudioPlayerError
 import com.leogluck.headway.audioplayer.PlaybackState
 
@@ -11,9 +10,10 @@ data class ScreenState(
     val totalDuration: Float = 0F,
     val currentTrackNumber: Int = 0,
     val totalTracks: Int = 0,
-    val playbackSpeed: Int = 1,
+    val playbackSpeed: Float = 1F,
     val bitmapResourceId: Int? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isBottomSheetVisible: Boolean = false
 )
 
 sealed interface Event {
@@ -26,6 +26,9 @@ sealed interface Event {
     data object SkipPreviousClicked : Event
     data class Seek(val position: Float) : Event
     data class PlaybackStateChanged(val playbackState: PlaybackState) : Event
+    data object PlaybackSpeedClicked : Event
+    data class PlaybackSpeedSelected(val speed: Float): Event
+    data object DismissBottomSheet : Event
     class PlaybackError(val error: AudioPlayerError) : Event
     data object DismissError : Event
 }
@@ -39,4 +42,5 @@ sealed interface Effect {
     data object SeekForward : Effect
     data object SeekBackward : Effect
     data class Seek(val position: Long) : Effect
+    data class SetPlaybackSpeed(val speed: Float): Effect
 }

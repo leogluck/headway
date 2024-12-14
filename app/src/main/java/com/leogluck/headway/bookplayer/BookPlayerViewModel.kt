@@ -5,9 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leogluck.headway.audioplayer.PlaybackState
 import com.leogluck.headway.bookplayer.Event.BindAudioPlayer
+import com.leogluck.headway.bookplayer.Event.DismissBottomSheet
 import com.leogluck.headway.bookplayer.Event.DismissError
 import com.leogluck.headway.bookplayer.Event.PlayPauseClicked
 import com.leogluck.headway.bookplayer.Event.PlaybackError
+import com.leogluck.headway.bookplayer.Event.PlaybackSpeedClicked
+import com.leogluck.headway.bookplayer.Event.PlaybackSpeedSelected
 import com.leogluck.headway.bookplayer.Event.PlaybackStateChanged
 import com.leogluck.headway.bookplayer.Event.Seek
 import com.leogluck.headway.bookplayer.Event.SeekBackwardClicked
@@ -60,6 +63,9 @@ class BookPlayerViewModel @Inject constructor(
             is PlaybackStateChanged -> handlePlaybackStateChanged(event.playbackState)
             SkipNextClicked -> skipNext()
             SkipPreviousClicked -> skipPrevious()
+            PlaybackSpeedClicked -> showChoosePlaybackSpeedBottomSheet()
+            is PlaybackSpeedSelected -> setPlaybackSpeed(event.speed)
+            DismissBottomSheet -> dismissBottomSheet()
             is PlaybackError -> handleErrors(event.error.exception.message)
             DismissError -> dismissError()
         }
@@ -114,6 +120,28 @@ class BookPlayerViewModel @Inject constructor(
     private fun skipPrevious() {
         viewModelScope.launch {
             _effects.emit(Effect.SkipPrevious)
+        }
+    }
+
+    private fun showChoosePlaybackSpeedBottomSheet() {
+        _screenState.update {
+            it.copy(isBottomSheetVisible = true)
+        }
+    }
+
+    private fun dismissBottomSheet() {
+        _screenState.update {
+            it.copy(isBottomSheetVisible = false)
+        }
+    }
+
+    private fun setPlaybackSpeed(speed: Float) {
+        _screenState.update {
+            it.copy(isBottomSheetVisible = false, playbackSpeed = speed)
+        }
+
+        viewModelScope.launch {
+            _effects.emit(Effect.SetPlaybackSpeed(speed))
         }
     }
 

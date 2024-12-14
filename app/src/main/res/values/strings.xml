@@ -7,9 +7,10 @@
     <string name="audio_player_channel_name">Audio player</string>
     <string name="audio_player_channel_description">Notifications for audio playback controls and track information</string>
     <string name="key_point_of_total">KEY POINT %d OF %d</string>
-    <string name="playback_speed">Speed x%d</string>
+    <string name="playback_speed">Speed x%s</string>
     <string name="design_quote">Design is not how a thing looks, but how it works</string>
     <string name="skip_next">Skip Next</string>
     <string name="skip_previous">Skip Previous</string>
     <string name="dismiss">Dismiss</string>
+    <string name="playback_speed_title">Playback speed</string>
 </resources>
