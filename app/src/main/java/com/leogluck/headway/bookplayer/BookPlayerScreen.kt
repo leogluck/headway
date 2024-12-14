@@ -1,6 +1,5 @@
 package com.leogluck.headway.bookplayer
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,10 +41,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.leogluck.headway.R
 import com.leogluck.headway.SPEED_DOUBLE
 import com.leogluck.headway.SPEED_HALF
@@ -73,7 +73,7 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
             SnackbarHost(
                 snackbarHostState,
                 modifier = Modifier.clickable { onEvent(Event.DismissError) })
-        },
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -83,16 +83,16 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
         ) {
             val imageBitmap = getBitmap(screenState.bitmapResourceId)
 
-            imageBitmap?.let { imgBitmap ->
-                Image(
-                    bitmap = imgBitmap.asImageBitmap(),
-                    contentDescription = "Book Cover",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1F)
-                        .padding(top = 64.dp)
-                )
-            }
+            AsyncImage(
+                model = imageBitmap,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1F)
+                    .padding(top = 64.dp),
+                placeholder = painterResource(id = R.drawable.ic_book_cover_placeholder),
+                error = painterResource(id = R.drawable.ic_book_cover_placeholder)
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
