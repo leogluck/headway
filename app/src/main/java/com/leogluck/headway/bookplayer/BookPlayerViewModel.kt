@@ -78,9 +78,7 @@ class BookPlayerViewModel @Inject constructor(
                     withContext(ioDispatcher) { audioRepository.getBookInfo(bookId) }
                 }.onSuccess { bookInfo ->
                     _screenState.update {
-                        it.copy(
-                            bitmapResourceId = bookInfo.bitmapResourceId
-                        )
+                        it.copy(bitmapResourceId = bookInfo.bitmapResourceId)
                     }
                 }.onFailure {
                     handleErrors(it.message)
@@ -96,6 +94,8 @@ class BookPlayerViewModel @Inject constructor(
             bookInfoDeferred?.await()?.let {
                 _effects.emit(Effect.Prepare(it))
             }
+            bookInfoDeferred?.cancel()
+            bookInfoDeferred = null
         }
     }
 
@@ -202,6 +202,7 @@ class BookPlayerViewModel @Inject constructor(
 
     override fun onCleared() {
         bookInfoFetchingJob?.cancel()
+        bookInfoDeferred?.cancel()
         super.onCleared()
     }
 }
