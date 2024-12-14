@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -74,7 +75,6 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
                 modifier = Modifier.clickable { onEvent(Event.DismissError) })
         },
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -186,6 +186,74 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
 }
 
 @Composable
+private fun ControlPanel(
+    screenState: ScreenState,
+    onEvent: (Event) -> Unit
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = { onEvent(Event.SkipPreviousClicked) },
+            colors = IconButtonDefaults.iconButtonColors()
+            ) {
+            Icon(
+                modifier = Modifier.size(48.dp),
+                imageVector = Icons.Default.SkipPrevious,
+                contentDescription = "Play previous"
+            )
+        }
+        IconButton(
+            onClick = { onEvent(Event.SeekBackwardClicked) },
+            colors = IconButtonDefaults.iconButtonColors()
+        ) {
+            Icon(
+                modifier = Modifier.size(48.dp),
+                imageVector = Icons.Default.Replay5,
+                contentDescription = "Rewind 5 seconds"
+            )
+        }
+        IconButton(
+            onClick = { onEvent(Event.PlayPauseClicked) },
+            colors = IconButtonDefaults.iconButtonColors()
+        ) {
+            val (icon, description) = if (screenState.isPlaying) {
+                Icons.Default.Pause to "Pause"
+            } else {
+                Icons.Default.PlayArrow to "Play"
+            }
+            Icon(
+                modifier = Modifier.size(48.dp),
+                imageVector = icon,
+                contentDescription = description
+            )
+        }
+        IconButton(
+            onClick = { onEvent(Event.SeekForwardClicked) },
+            colors = IconButtonDefaults.iconButtonColors()
+        ) {
+            Icon(
+                modifier = Modifier.size(48.dp),
+                imageVector = Icons.Default.Forward10,
+                contentDescription = "Forward 10 seconds"
+            )
+        }
+        IconButton(
+            onClick = { onEvent(Event.SkipNextClicked) },
+            colors = IconButtonDefaults.iconButtonColors()
+        ) {
+            Icon(
+                modifier = Modifier.size(48.dp),
+                imageVector = Icons.Default.SkipNext,
+                contentDescription = "Play next"
+            )
+        }
+    }
+}
+
+@Composable
 private fun BottomSheetContent(
     onPlaybackSpeedSelected: (Float) -> Unit
 ) {
@@ -208,68 +276,23 @@ private fun BottomSheetContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        playbackSpeeds.forEach { speed ->
-            Button(
-                onClick = { onPlaybackSpeedSelected(speed) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = String.format(getString(R.string.playback_speed_formatter), speed))
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        PlaybackSpeedSelector(playbackSpeeds, onPlaybackSpeedSelected)
     }
 }
 
 @Composable
-private fun ControlPanel(
-    screenState: ScreenState,
-    onEvent: (Event) -> Unit
+private fun PlaybackSpeedSelector(
+    playbackSpeeds: List<Float>,
+    onPlaybackSpeedSelected: (Float) -> Unit
 ) {
-    Row(
-        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = { onEvent(Event.SkipPreviousClicked) }) {
-            Icon(
-                modifier = Modifier.size(48.dp),
-                imageVector = Icons.Default.SkipPrevious,
-                contentDescription = "Play previous"
-            )
+    playbackSpeeds.forEach { speed ->
+        Button(
+            onClick = { onPlaybackSpeedSelected(speed) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = String.format(getString(R.string.playback_speed_formatter), speed))
         }
-        IconButton(onClick = { onEvent(Event.SeekBackwardClicked) }) {
-            Icon(
-                modifier = Modifier.size(48.dp),
-                imageVector = Icons.Default.Replay5,
-                contentDescription = "Rewind 5 seconds"
-            )
-        }
-        IconButton(onClick = { onEvent(Event.PlayPauseClicked) }) {
-            val (icon, description) = if (screenState.isPlaying) {
-                Icons.Default.Pause to "Pause"
-            } else {
-                Icons.Default.PlayArrow to "Play"
-            }
-            Icon(
-                modifier = Modifier.size(48.dp),
-                imageVector = icon,
-                contentDescription = description
-            )
-        }
-        IconButton(onClick = { onEvent(Event.SeekForwardClicked) }) {
-            Icon(
-                modifier = Modifier.size(48.dp),
-                imageVector = Icons.Default.Forward10,
-                contentDescription = "Forward 10 seconds"
-            )
-        }
-        IconButton(onClick = { onEvent(Event.SkipNextClicked) }) {
-            Icon(
-                modifier = Modifier.size(48.dp),
-                imageVector = Icons.Default.SkipNext,
-                contentDescription = "Play next"
-            )
-        }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
