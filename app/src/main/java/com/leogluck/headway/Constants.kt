@@ -1,5 +1,6 @@
 package com.leogluck.headway
 
+const val MEDIA_SESSION_TAG = "HeadwayAudioPlayer"
 const val CHANNEL_ID = "AUDIO_PLAYER_CHANNEL"
 const val NOTIFICATION_ID = 1
 const val ONE_SECOND_DELAY = 1000L

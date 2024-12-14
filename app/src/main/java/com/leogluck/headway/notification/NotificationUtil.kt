@@ -1,11 +1,14 @@
 package com.leogluck.headway.notification
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.media.app.NotificationCompat.*
+import androidx.media.app.NotificationCompat.MediaStyle
 import com.leogluck.headway.CHANNEL_ID
 import com.leogluck.headway.R
 import com.leogluck.headway.audioplayer.AudioPlayerService
@@ -15,6 +18,28 @@ import com.leogluck.headway.audioplayer.AudioPlayerService.Companion.ACTION_SKIP
 import com.leogluck.headway.audioplayer.AudioPlayerService.Companion.ACTION_SKIP_TO_PREVIOUS
 import com.leogluck.headway.audioplayer.AudioPlayerService.Companion.ACTION_STOP_SERVICE
 import com.leogluck.headway.bookplayer.BookPlayerActivity
+
+fun shouldRegisterNotificationChannel(notificationManager: NotificationManager): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = notificationManager.getNotificationChannel(CHANNEL_ID)
+        return channel == null
+    }
+    return false
+}
+
+fun createNotificationChannel(context: Context, notificationManager: NotificationManager) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        NotificationChannel(
+            CHANNEL_ID,
+            context.getString(R.string.audio_player_channel_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = context.getString(R.string.audio_player_channel_description)
+        }.also {
+            notificationManager.createNotificationChannel(it)
+        }
+    }
+}
 
 fun Context.createNotification(isPlaying: Boolean): Notification {
     val playPauseAction = if (isPlaying) {

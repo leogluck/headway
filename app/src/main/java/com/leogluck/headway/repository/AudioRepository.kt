@@ -8,7 +8,7 @@ import javax.inject.Inject
 class AudioRepository @Inject constructor(
 ) : IAudioRepository {
 
-    override suspend fun getAudioLinksPlaylist(bookId: String): BookInfo {
+    override suspend fun getBookInfo(bookId: String): BookInfo {
         // imitating network call
         delay(1000L)
         return BookInfo(

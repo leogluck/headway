@@ -75,12 +75,10 @@ class BookPlayerViewModel @Inject constructor(
         bookInfoFetchingJob = viewModelScope.launch {
             bookInfoDeferred = async {
                 runCatching {
-                    withContext(ioDispatcher) { audioRepository.getAudioLinksPlaylist(bookId) }
+                    withContext(ioDispatcher) { audioRepository.getBookInfo(bookId) }
                 }.onSuccess { bookInfo ->
                     _screenState.update {
-                        it.copy(
-                            bitmapResourceId = bookInfo.bitmapResourceId
-                        )
+                        it.copy(bitmapResourceId = bookInfo.bitmapResourceId)
                     }
                 }.onFailure {
                     handleErrors(it.message)
@@ -96,6 +94,8 @@ class BookPlayerViewModel @Inject constructor(
             bookInfoDeferred?.await()?.let {
                 _effects.emit(Effect.Prepare(it))
             }
+            bookInfoDeferred?.cancel()
+            bookInfoDeferred = null
         }
     }
 
@@ -149,7 +149,9 @@ class BookPlayerViewModel @Inject constructor(
         _screenState.update {
             it.copy(currentPosition = position)
         }
-        seekMedia(position.positionToMillis())
+        viewModelScope.launch {
+            _effects.emit(Effect.Seek(position.positionToMillis()))
+        }
     }
 
     private fun handlePlaybackStateChanged(playbackState: PlaybackState) {
@@ -194,14 +196,9 @@ class BookPlayerViewModel @Inject constructor(
         }
     }
 
-    private fun seekMedia(position: Long) {
-        viewModelScope.launch {
-            _effects.emit(Effect.Seek(position))
-        }
-    }
-
     override fun onCleared() {
         bookInfoFetchingJob?.cancel()
+        bookInfoDeferred?.cancel()
         super.onCleared()
     }
 }
