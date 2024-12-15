@@ -73,13 +73,9 @@ class AudioPlayerService : Service(), IAudioPlayer {
                     updateForegroundNotification()
                 }
 
-                Player.STATE_BUFFERING -> {
-                    println()
-                }
+                Player.STATE_BUFFERING -> {}
 
-                Player.STATE_IDLE -> {
-                    println()
-                }
+                Player.STATE_IDLE -> {}
             }
         }
 
