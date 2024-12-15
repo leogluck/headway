@@ -73,9 +73,13 @@ class AudioPlayerService : Service(), IAudioPlayer {
                     updateForegroundNotification()
                 }
 
-                Player.STATE_BUFFERING -> {}
+                Player.STATE_BUFFERING -> {
+                    println()
+                }
 
-                Player.STATE_IDLE -> {}
+                Player.STATE_IDLE -> {
+                    println()
+                }
             }
         }
 
@@ -134,7 +138,6 @@ class AudioPlayerService : Service(), IAudioPlayer {
                 MediaItem.fromUri(uri)
             }.also { mediaItems ->
                 exoPlayer.setMediaItems(mediaItems)
-                exoPlayer.prepare()
             }
         }.onFailure {
             scope.launch {
@@ -143,7 +146,10 @@ class AudioPlayerService : Service(), IAudioPlayer {
         }
     }
 
-    override fun play() = exoPlayer.play()
+    override fun play() {
+        exoPlayer.prepare()
+        exoPlayer.play()
+    }
 
     override fun pause() = exoPlayer.pause()
 
