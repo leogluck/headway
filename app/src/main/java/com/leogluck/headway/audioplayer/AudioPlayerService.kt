@@ -62,6 +62,7 @@ class AudioPlayerService : Service(), IAudioPlayer {
                         it.copy(
                             duration = exoPlayer.duration,
                             currentTrackNumber = exoPlayer.currentMediaItemIndex.plus(1),
+                            currentPosition = exoPlayer.currentPosition,
                             totalTracks = exoPlayer.mediaItemCount
                         )
                     }
@@ -134,6 +135,7 @@ class AudioPlayerService : Service(), IAudioPlayer {
                 MediaItem.fromUri(uri)
             }.also { mediaItems ->
                 exoPlayer.setMediaItems(mediaItems)
+                exoPlayer.prepare()
             }
         }.onFailure {
             scope.launch {

@@ -1,7 +1,9 @@
 package com.leogluck.headway.bookplayer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,11 +44,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.leogluck.headway.R
 import com.leogluck.headway.SPEED_DOUBLE
 import com.leogluck.headway.SPEED_HALF
@@ -81,18 +83,21 @@ private fun Content(screenState: ScreenState, onEvent: (Event) -> Unit) {
                 .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val imageBitmap = getBitmap(screenState.bitmapResourceId)
-
-            AsyncImage(
-                model = imageBitmap,
-                contentDescription = null,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1F)
-                    .padding(top = 64.dp),
-                placeholder = painterResource(id = R.drawable.ic_book_cover_placeholder),
-                error = painterResource(id = R.drawable.ic_book_cover_placeholder)
-            )
+                    .aspectRatio(1F),
+                contentAlignment = Alignment.Center
+            ) {
+                getBitmap(screenState.bitmapResourceId)?.let {
+                    Image(
+                        modifier = Modifier.fillMaxSize()
+                            .padding(top = 64.dp),
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null
+                    )
+                } ?: CircularProgressIndicator()
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -198,7 +203,7 @@ private fun ControlPanel(
         IconButton(
             onClick = { onEvent(Event.SkipPreviousClicked) },
             colors = IconButtonDefaults.iconButtonColors()
-            ) {
+        ) {
             Icon(
                 modifier = Modifier.size(48.dp),
                 imageVector = Icons.Default.SkipPrevious,
@@ -299,12 +304,16 @@ private fun PlaybackSpeedSelector(
 @Preview(showBackground = true)
 @Composable
 fun AudioPlayerPreview() {
-    Content(screenState = ScreenState(
-        isPlaying = false,
-        currentPosition = 100f,
-        totalDuration = 350.7f,
-        currentTrackNumber = 2,
-        totalTracks = 10,
-        playbackSpeed = 1F
-    ), onEvent = {})
+    Content(
+        screenState = ScreenState(
+            isPlaying = false,
+            currentPosition = 100f,
+            totalDuration = 350.7f,
+            currentTrackNumber = 2,
+            bitmapResourceId = R.drawable.book_cover,
+            totalTracks = 10,
+            playbackSpeed = 1F
+        ),
+        onEvent = {}
+    )
 }
