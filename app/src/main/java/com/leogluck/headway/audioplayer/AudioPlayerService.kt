@@ -134,7 +134,6 @@ class AudioPlayerService : Service(), IAudioPlayer {
                 MediaItem.fromUri(uri)
             }.also { mediaItems ->
                 exoPlayer.setMediaItems(mediaItems)
-                exoPlayer.prepare()
             }
         }.onFailure {
             scope.launch {
@@ -143,7 +142,10 @@ class AudioPlayerService : Service(), IAudioPlayer {
         }
     }
 
-    override fun play() = exoPlayer.play()
+    override fun play() {
+        exoPlayer.prepare()
+        exoPlayer.play()
+    }
 
     override fun pause() = exoPlayer.pause()
 

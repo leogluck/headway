@@ -18,8 +18,7 @@ class AudioRepository @Inject constructor(
                 "android.resource://com.leogluck.headway/raw/no_conventions",
                 "android.resource://com.leogluck.headway/raw/maybe",
                 "android.resource://com.leogluck.headway/raw/no_conventions",
-                "android.resource://com.leogluck.headway/raw/maybe",
-                "https://www.leogluck.com/audio/new_day.wav"
+                "android.resource://com.leogluck.headway/raw/maybe"
             )
         )
     }
